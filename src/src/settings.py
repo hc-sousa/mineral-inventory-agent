@@ -21,7 +21,10 @@ apps = [
     ('admin_interface', True), # Custom Admin Interface
     ('rest_framework', True), # REST API Framework
     ('axes', True), # Security package
-    ('api', True), # This is the default app that comes with the project
+    ('api', True), # Public API Endpoints
+    ('agents', True), # Document Store Agent
+    ('supervisor', True), # Super Admin Panel
+    ('error_handling', True), # Error Handling
     ('tailwind', True), # Tailwind CSS
     ('django_browser_reload', False), # Automatically reloads the browser when you save a file
 ]
