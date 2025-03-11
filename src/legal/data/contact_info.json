@@ -1,0 +1,30 @@
+{
+    "last_updated": "YYYY-MM-DD",
+    "contact_info": [
+        {
+            "platform": "Email",
+            "content": "contact@example.com",
+            "href": "mailto:contact@example.com"
+        },
+        {
+            "platform": "X",
+            "content": "https://x.com/username",
+            "href": "https://x.com/username"
+        },
+        {
+            "platform": "LinkedIn",
+            "content": "https://linkedin.com/in/username",
+            "href": "https://linkedin.com/in/username"
+        },
+        {
+            "platform": "GitHub",
+            "content": "https://github.com/username",
+            "href": "https://github.com/username"
+        },
+        {
+            "platform": "Website",
+            "content": "https://example.com",
+            "href": "https://example.com"
+        }
+    ]
+}

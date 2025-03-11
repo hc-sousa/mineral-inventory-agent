@@ -1,0 +1,77 @@
+{
+    "title": "Project License Agreement",
+    "sections": [
+        {
+            "heading": "TL;DR",
+            "content": [
+                "<strong>Personal License:</strong> Build unlimited projects as an individual.<br>",
+                "<strong>Team License:</strong> Build unlimited projects as a team."
+            ]
+        },
+        {
+            "heading": "Grant of License",
+            "content": [
+                "This License Agreement (\"Agreement\") is entered into between [Licensor Name], whose contact information is contact@example.com, and you, the user (\"Licensee\"), regarding the use of the coding boilerplate (the \"Product\") available at https://example.com/ (the \"Website\"). By downloading, accessing, or using the Product, Licensee agrees to be bound by the terms and conditions of this Agreement."
+            ],
+            "subsections": [
+                {
+                    "subheading": "1.1 Personal License",
+                    "content": [
+                        "Subject to the terms and conditions of this Agreement, the Licensor grants Licensee a non-exclusive, non-transferable, and non-sublicensable Personal License to use the coding boilerplate for the following purposes:<br>",
+                        "<br>- Create unlimited projects.<br>",
+                        "- Build and develop applications or websites for personal or commercial use."
+                    ]
+                },
+                {
+                    "subheading": "1.2 Team License",
+                    "content": [
+                        "Subject to the terms and conditions of this Agreement, the Licensor grants Licensee a non-exclusive, non-transferable, and non-sublicensable Team License to use the coding boilerplate for the following purposes:<br>",
+                        "<br>- Create unlimited projects.<br>",
+                        "- Build and develop applications or websites as part of a team.<br>",
+                        "- Share the code with other team members."
+                    ]
+                }
+            ]
+        },
+        {
+            "heading": "Restrictions",
+            "content": [
+                "Licensee shall not:<br>",
+                "<br>- Modify, adapt, reverse engineer, decompile, disassemble, or create derivative works based on the boilerplate.<br>",
+                "- Remove, alter, or obscure any copyright, trademark, or other proprietary notices from the boilerplate.<br>",
+                "- Use the boilerplate in any way that violates applicable laws, regulations, or third-party rights.<br>",
+                "- Sub-license, rent, lease, or transfer the boilerplate or any rights granted under this Agreement."
+            ]
+        },
+        {
+            "heading": "Ownership and Intellectual Property",
+            "content": [
+                "Licensor retains all ownership and intellectual property rights in and to the boilerplate. This Agreement does not grant Licensee any ownership rights in the boilerplate."
+            ]
+        },
+        {
+            "heading": "Warranty and Disclaimer",
+            "content": [
+                "THE BOILERPLATE IS PROVIDED \"AS IS\" WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESS OR IMPLIED, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE, OR NONINFRINGEMENT."
+            ]
+        },
+        {
+            "heading": "Limitation of Liability",
+            "content": [
+                "TO THE MAXIMUM EXTENT PERMITTED BY APPLICABLE LAW, LICENSOR SHALL NOT BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, CONSEQUENTIAL, OR PUNITIVE DAMAGES ARISING OUT OF OR RELATING TO THE USE OR INABILITY TO USE THE BOILERPLATE, EVEN IF LICENSOR HAS BEEN ADVISED OF THE POSSIBILITY OF SUCH DAMAGES."
+            ]
+        },
+        {
+            "heading": "Governing Law and Jurisdiction",
+            "content": [
+                "This Agreement shall be governed by and construed in accordance with the laws of [Your Region]. Any dispute arising out of or in connection with this Agreement shall be subject to the exclusive jurisdiction of the courts located in [Your Region]."
+            ]
+        },
+        {
+            "heading": "Entire Agreement",
+            "content": [
+                "This Agreement constitutes the entire agreement between Licensee and Licensor concerning the subject matter herein and supersedes all prior or contemporaneous agreements, representations, warranties, and understandings."
+            ]
+        }
+    ]
+}
