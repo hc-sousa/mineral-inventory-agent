@@ -20,11 +20,13 @@ apps = [
     ('allauth.socialaccount.providers.github', True), # Github OAuth Social Login
     ('admin_interface', True), # Custom Admin Interface
     ('rest_framework', True), # REST API Framework
+    ('drf_spectacular', True), # API Documentation
     ('axes', True), # Security package
     ('api', True), # Public API Endpoints
     ('agents', True), # Document Store Agent
     ('supervisor', True), # Super Admin Panel
     ('error_handling', True), # Error Handling
+    ('legal', True), # Legal Pages
     ('tailwind', True), # Tailwind CSS
     ('django_browser_reload', False), # Automatically reloads the browser when you save a file
 ]
@@ -298,7 +300,20 @@ if 'allauth' in INSTALLED_APPS:
     MIDDLEWARE.append('allauth.account.middleware.AccountMiddleware')
 if 'axes' in INSTALLED_APPS:
     MIDDLEWARE.append('axes.middleware.AxesMiddleware')
-    
+
+# DRF Spectacular settings for API documentation
+if 'rest_framework' in INSTALLED_APPS and 'drf_spectacular' in INSTALLED_APPS:
+    REST_FRAMEWORK = {
+        'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+    }
+
+    SPECTACULAR_SETTINGS = {
+        'TITLE': f'{PROJECT_NAME} API',
+        'DESCRIPTION': 'API documentation for all endpoints',
+        'VERSION': '1.0.0',
+        'SERVE_INCLUDE_SCHEMA': False,
+    }
+
 import warnings
 
 if 'YOUR_SECRET_KEY' in SECRET_KEY:
