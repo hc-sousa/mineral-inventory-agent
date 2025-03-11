@@ -1,6 +1,6 @@
 from unittest.mock import patch
 from django.test import TestCase
-from app.utils import get_media
+from api.utils import get_media
 
 class GetMediaTests(TestCase):
 

@@ -15,31 +15,17 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path
-from app import views
+from api import views
 from django.conf import settings
 
 urlpatterns = [
     path('dashboard/admin/', admin.site.urls),
     path('', include('user_management.urls')),
+    path('api/', include('api.urls')),
     path('__reload__/', include('django_browser_reload.urls')),
     path('i18n/', include('django.conf.urls.i18n')),
     path('media/<path:path>', views.fetch_media, name='get_media'),
 ]
 
-if 'landing_page' in settings.INSTALLED_APPS:
-    urlpatterns.append(path('', include('landing_page.urls')))
-    urlpatterns.append(path('app/', include('app.urls')))
-else:
-    urlpatterns.append(path('', include('app.urls')))
-    
-if 'documentation' in settings.INSTALLED_APPS:
-    urlpatterns.append(path('docs/', include('documentation.urls')))
-
 if 'allauth' in settings.INSTALLED_APPS:
     urlpatterns.append(path('accounts/', include('allauth.urls')))
-
-if 'stripe_payments' in settings.INSTALLED_APPS:
-    urlpatterns.append(path('payment/', include('stripe_payments.urls')))
-
-if 'legal' in settings.INSTALLED_APPS:
-    urlpatterns.append(path('legal/', include('legal.urls')))

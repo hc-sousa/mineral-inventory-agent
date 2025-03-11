@@ -10,22 +10,18 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
-PROJECT_NAME = "djast" # This will change the project name across several parts of the project
-PROJECT_URL = "https://djast.dev" # This will change the project URL across several parts of the project
+PROJECT_NAME = "Mineral Inventory Agent" # This will change the project name across several parts of the project
+PROJECT_URL = "https://example.com" # This will change the project URL across several parts of the project
 
 ### CHANGE THE CODE BELOW TO MANAGE WHICH APPS TO USE ###
-## djast is intended to be used with all the apps below, but you can personalize it at your own risk ##
+## djast.dev is intended to be used with all the apps below, but you can personalize it at your own risk ##
 apps = [
     ('allauth.socialaccount.providers.google', True), # Google OAuth Social Login
     ('allauth.socialaccount.providers.github', True), # Github OAuth Social Login
     ('admin_interface', True), # Custom Admin Interface
     ('rest_framework', True), # REST API Framework
     ('axes', True), # Security package
-    ('landing_page', False), # Djast Landing Page Example
-    ('documentation', True), # Documentation Pages
-    ('app', True), # This is the default app that comes with the project
-    ('legal', True), # Legal Pages
-    ('stripe_payments', True), # Stripe Payments Integration
+    ('api', True), # This is the default app that comes with the project
     ('tailwind', True), # Tailwind CSS
     ('django_browser_reload', False), # Automatically reloads the browser when you save a file
 ]
@@ -256,18 +252,6 @@ def define_django_axes_settings():
     AXES_COOLOFF_TIME = config('AXES_COOLOFF_TIME', default=1, cast=int)
     AXES_RESET_ON_SUCCESS = config('AXES_RESET_ON_SUCCESS', default=True, cast=bool)
 
-def define_stripe_payments_settings():
-    ''' Stripe Payments Settings '''
-    global STRIPE_PUBLIC_KEY, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET, PRODUCT_PRICE_ID, COUPON_ID, PAYMENT_METHODS, REDIRECT_DOMAIN
-    prefix = 'TEST_' if DEBUG else ''
-    STRIPE_PUBLIC_KEY = config(f'{prefix}STRIPE_PUBLIC_KEY', default='')
-    STRIPE_SECRET_KEY = config(f'{prefix}STRIPE_SECRET_KEY', default='')
-    STRIPE_WEBHOOK_SECRET = config(f'{prefix}STRIPE_WEBHOOK_SECRET', default='')
-    PRODUCT_PRICE_ID = config(f'{prefix}PRODUCT_PRICE_ID', default='')
-    COUPON_ID = config(f'{prefix}COUPON_ID', default='')
-    REDIRECT_DOMAIN = config(f'{prefix}REDIRECT_DOMAIN', default='')
-    PAYMENT_METHODS = config('PAYMENT_METHODS', default='card,paypal,link').split(',')
-
 AUTHENTICATION_REQUIRED = config('AUTHENTICATION_REQUIRED', default=True, cast=bool)      
 if AUTHENTICATION_REQUIRED:
     INSTALLED_APPS.append('django.contrib.sites')
@@ -298,12 +282,8 @@ for app, should_add in apps:
             SILENCED_SYSTEM_CHECKS = ["security.W019"]
         elif app == 'axes':
             define_django_axes_settings()
-        elif app == 'stripe_payments':
-            define_stripe_payments_settings()
 INSTALLED_APPS.append('shared')
             
-if 'landing_page' in INSTALLED_APPS and 'app' not in INSTALLED_APPS:
-    raise Exception('The \'landing_page\' requires the \'app\' to be enabled. Please enable it.')
 if len(social_providers) > 0:
     define_django_allauth_settings(social_providers)
             
