@@ -8,6 +8,7 @@ from api.views.test_views import (
 )
 
 urlpatterns = [
+    path('', views.test_connection, name='index'),
     path('test/connection/', views.test_connection, name='test-connection'),
     path('test-minerals/', TestMineralsAgentView.as_view(), name='test-minerals-agent'),
     path('test/minerals/', TestMineralsAgentView.as_view(), name='test-minerals'),

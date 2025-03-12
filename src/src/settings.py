@@ -20,8 +20,8 @@ PROJECT_URL = "https://example.com" # This will change the project URL across se
 ### CHANGE THE CODE BELOW TO MANAGE WHICH APPS TO USE ###
 ## djast.dev is intended to be used with all the apps below, but you can personalize it at your own risk ##
 apps = [
-    ('allauth.socialaccount.providers.google', True), # Google OAuth Social Login
-    ('allauth.socialaccount.providers.github', True), # Github OAuth Social Login
+    ('allauth.socialaccount.providers.google', False), # Google OAuth Social Login
+    ('allauth.socialaccount.providers.github', False), # Github OAuth Social Login
     ('admin_interface', True), # Custom Admin Interface
     ('rest_framework', True), # REST API Framework
     ('drf_spectacular', True), # API Documentation
@@ -115,7 +115,7 @@ DATABASES = {
     }
 } if DEBUG else {
     'default': {
-        'ENGINE': 'django.db.backends.postgresql',
+        'ENGINE': config('DB_ENGINE', default='django.db.backends.postgresql'),
         'NAME': config('DB_NAME', default='postgres'),
         'USER': config('DB_USER', default=''),
         'PASSWORD': config('DB_PASSWORD', default=''),
@@ -207,7 +207,7 @@ def define_cognito_settings():
 # CHANGE THE CODE BELOW AT YOUR OWN RISK #
 def define_django_allauth_settings(social_providers = []):
     ''' Django Allauth Settings '''
-    global AUTHENTICATION_BACKENDS, SOCIALACCOUNT_PROVIDERS, ACCOUNT_AUTHENTICATION_METHOD, ACCOUNT_EMAIL_REQUIRED, ACCOUNT_USERNAME_REQUIRED, ACCOUNT_EMAIL_VERIFICATION, EMAIL_BACKEND, RESEND_API_KEY, DEFAULT_FROM_EMAIL, EMAIL_HOST, EMAIL_PORT, EMAIL_USE_TLS, EMAIL_HOST_USER, EMAIL_HOST_PASSWORD
+    global AUTHENTICATION_BACKENDS, SOCIALACCOUNT_PROVIDERS, ACCOUNT_AUTHENTICATION_METHOD, ACCOUNT_EMAIL_REQUIRED, ACCOUNT_USERNAME_REQUIRED, ACCOUNT_EMAIL_VERIFICATION, EMAIL_BACKEND, DEFAULT_FROM_EMAIL
     
     if len(social_providers) > 0:
         SOCIALACCOUNT_PROVIDERS = {}
@@ -272,16 +272,7 @@ def define_django_allauth_settings(social_providers = []):
         if DEBUG:
             EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
         else:
-            if config('USE_SMTP', default=False, cast=bool):
-                EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-                EMAIL_HOST = config('EMAIL_HOST', default='')
-                EMAIL_PORT = config('EMAIL_PORT', default='')
-                EMAIL_USE_TLS = config('EMAIL_USE_TLS', default=False, cast=bool)
-                EMAIL_HOST_USER = config('EMAIL_HOST_USER', default='')
-                EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD', default='')
-            else:
-                EMAIL_BACKEND = 'shared.resend_backend.ResendEmailBackend'
-                RESEND_API_KEY = config('RESEND_API_KEY', default='')
+            EMAIL_BACKEND = None
         DEFAULT_FROM_EMAIL = config('DEFAULT_FROM_EMAIL', default='')
 
 def define_django_axes_settings():
