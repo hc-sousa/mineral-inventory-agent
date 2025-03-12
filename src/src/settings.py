@@ -29,6 +29,7 @@ apps = [
     ('legal', True), # Legal Pages
     ('tailwind', True), # Tailwind CSS
     ('django_browser_reload', False), # Automatically reloads the browser when you save a file
+    ('django_elasticsearch_dsl', True), # Elasticsearch DSL
 ]
 
 import os
@@ -325,5 +326,9 @@ CHROMADB_API_HOST = config('CHROMADB_API_HOST', default='localhost')
 CHROMADB_API_PORT = config('CHROMADB_API_PORT', default='8000')
 
 ENCRYPTION_KEY = config('ENCRYPTION_KEY', default='YOUR_ENCRYTION_KEY')
-
+ELASTICSEARCH_DSL = {
+    'default': {
+        'hosts': config('ELASTICSEARCH_HOST', default='localhost:9200')
+    },
+}
 #### END OF CUSTOM CONFIGURATION SETTINGS ####

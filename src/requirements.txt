@@ -40,5 +40,10 @@ drf_spectacular==0.28.0
 ## For AI Agents
 langchain==0.3.20
 langchain-openai==0.3.8
+##
+
+## For Searching
 chromadb==0.6.3
+elasticsearch==8.17.2
+django-elasticsearch-dsl==8.0
 ##
