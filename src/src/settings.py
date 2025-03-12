@@ -318,4 +318,10 @@ import warnings
 
 if 'YOUR_SECRET_KEY' in SECRET_KEY:
     warnings.warn('Please set a secure SECRET_KEY in your .env file.', UserWarning)
+
+# ChromaDB configuration (read from the .env file)
+CHROMADB_PERSIST_DIRECTORY = config('CHROMADB_PERSIST_DIRECTORY', default=os.path.join(BASE_DIR, 'chromadb_persist'))
+CHROMADB_API_HOST = config('CHROMADB_API_HOST', default='localhost')
+CHROMADB_API_PORT = config('CHROMADB_API_PORT', default='8000')
+
 #### END OF CUSTOM CONFIGURATION SETTINGS ####
