@@ -37,6 +37,11 @@ django-axes==6.5.1
 drf_spectacular==0.28.0
 ##
 
+## For AWS Cognito Authentication
+django-cognito-jwt==0.0.4
+boto3==1.37.11
+##
+
 ## For AI Agents
 langchain==0.3.20
 langchain-openai==0.3.8

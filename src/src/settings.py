@@ -10,6 +10,10 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/3.2/ref/settings/
 """
 
+from decouple import config
+
+DEBUG = config('DEBUG', default=True, cast=bool)
+
 PROJECT_NAME = "Mineral Inventory Agent" # This will change the project name across several parts of the project
 PROJECT_URL = "https://example.com" # This will change the project URL across several parts of the project
 
@@ -30,11 +34,11 @@ apps = [
     ('tailwind', True), # Tailwind CSS
     ('django_browser_reload', False), # Automatically reloads the browser when you save a file
     ('django_elasticsearch_dsl', True), # Elasticsearch DSL
+    ('cognito_jwt', not DEBUG), # AWS Cognito JWT Authentication
 ]
 
 import os
 from pathlib import Path
-from decouple import config
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -43,8 +47,6 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/3.2/howto/deployment/checklist/
 
 SECRET_KEY = config('SECRET_KEY', default='YOUR_SECRET_KEY')
-
-DEBUG = config('DEBUG', default=True, cast=bool)
 
 ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '0.0.0.0', '.vercel.app']
 
@@ -171,6 +173,35 @@ STATIC_ROOT = os.path.join(BASE_DIR, 'static')
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 
+# AWS Cognito Configuration
+AWS_COGNITO_REGION = config('AWS_COGNITO_REGION', default='us-east-1')
+AWS_COGNITO_USER_POOL_ID = config('AWS_COGNITO_USER_POOL_ID', default='')
+AWS_COGNITO_APP_CLIENT_ID = config('AWS_COGNITO_APP_CLIENT_ID', default='')
+AWS_COGNITO_APP_CLIENT_SECRET = config('AWS_COGNITO_APP_CLIENT_SECRET', default='')
+AWS_COGNITO_DOMAIN = config('AWS_COGNITO_DOMAIN', default='')
+
+# Function to define Cognito authentication settings
+def define_cognito_settings():
+    global REST_FRAMEWORK, COGNITO_JWT_SETTINGS
+    
+    # Configure REST framework for JWT authentication
+    REST_FRAMEWORK = {
+        'DEFAULT_AUTHENTICATION_CLASSES': [
+            'cognito_jwt.django_auth.JSONWebTokenAuthentication',
+            'rest_framework.authentication.SessionAuthentication',
+        ],
+        'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema' if 'drf_spectacular' in INSTALLED_APPS else None
+    }
+    
+    # Configure Cognito JWT settings
+    COGNITO_JWT_SETTINGS = {
+        'AWS_REGION': AWS_COGNITO_REGION,
+        'USER_POOL_ID': AWS_COGNITO_USER_POOL_ID,
+        'APP_CLIENT_ID': AWS_COGNITO_APP_CLIENT_ID,
+        'TOKEN_LOCATION': 'HEADER',
+        'TOKEN_HEADER_NAME': 'Authorization',
+    }
+
 ### These settings are used to enable or disable certain features in the project dynamically based on 'apps' variable ###
 ## You don't need to change anything here (unless you want to), just add or remove apps from the 'apps' variable above ##
 # CHANGE THE CODE BELOW AT YOUR OWN RISK #
@@ -209,7 +240,9 @@ def define_django_allauth_settings(social_providers = []):
                     ],
                 }
     else:
+        # Modify authentication backends based on environment
         AUTHENTICATION_BACKENDS = []
+        
         if ('axes', True) in apps:
             AUTHENTICATION_BACKENDS = [
                 'axes.backends.AxesStandaloneBackend',
@@ -219,10 +252,12 @@ def define_django_allauth_settings(social_providers = []):
             'django.contrib.auth.backends.ModelBackend',
         ]
         
-        if 'allauth' in INSTALLED_APPS:
-            AUTHENTICATION_BACKENDS += [
-                'allauth.account.auth_backends.AuthenticationBackend'
-            ]
+        # Add django-allauth backend only when in DEBUG mode or when social providers are configured
+        if DEBUG or len(social_providers) > 0:
+            if 'allauth' in INSTALLED_APPS:
+                AUTHENTICATION_BACKENDS += [
+                    'allauth.account.auth_backends.AuthenticationBackend'
+                ]
         
         # Make both username and email required
         ACCOUNT_USERNAME_REQUIRED = config('ACCOUNT_USERNAME_REQUIRED', default=True, cast=bool)
@@ -233,7 +268,6 @@ def define_django_allauth_settings(social_providers = []):
 
         # Send a verification email, but don't require it for login
         ACCOUNT_EMAIL_VERIFICATION = config('ACCOUNT_EMAIL_VERIFICATION', default='mandatory')
-
 
         if DEBUG:
             EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'
@@ -265,7 +299,7 @@ if AUTHENTICATION_REQUIRED:
     INSTALLED_APPS.append('allauth')
     INSTALLED_APPS.append('allauth.account')
     define_django_allauth_settings()
-    
+
 GOOGLE_ANALYTICS_ID = config('GOOGLE_ANALYTICS_ID', default=None)
 
 social_providers = []
@@ -289,10 +323,10 @@ for app, should_add in apps:
         elif app == 'axes':
             define_django_axes_settings()
 INSTALLED_APPS.append('shared')
-            
+
 if len(social_providers) > 0:
     define_django_allauth_settings(social_providers)
-            
+
 if 'user_management.apps.UserManagementConfig' in INSTALLED_APPS:
     MIDDLEWARE.append('user_management.middleware.LoginRequiredMiddleware')
 if 'django_browser_reload' in INSTALLED_APPS:
@@ -302,18 +336,9 @@ if 'allauth' in INSTALLED_APPS:
 if 'axes' in INSTALLED_APPS:
     MIDDLEWARE.append('axes.middleware.AxesMiddleware')
 
-# DRF Spectacular settings for API documentation
-if 'rest_framework' in INSTALLED_APPS and 'drf_spectacular' in INSTALLED_APPS:
-    REST_FRAMEWORK = {
-        'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
-    }
-
-    SPECTACULAR_SETTINGS = {
-        'TITLE': f'{PROJECT_NAME} API',
-        'DESCRIPTION': 'API documentation for all endpoints',
-        'VERSION': '1.0.0',
-        'SERVE_INCLUDE_SCHEMA': False,
-    }
+# Apply Cognito settings in production
+if not DEBUG and 'cognito_jwt' in INSTALLED_APPS:
+    define_cognito_settings()
 
 import warnings
 
@@ -332,3 +357,21 @@ ELASTICSEARCH_DSL = {
     },
 }
 #### END OF CUSTOM CONFIGURATION SETTINGS ####
+
+# Modify REST framework settings to include JWT authentication in production
+if 'rest_framework' in INSTALLED_APPS and 'drf_spectacular' in INSTALLED_APPS:
+    if not DEBUG and 'cognito_jwt' in INSTALLED_APPS:
+        # Already configured in define_cognito_settings
+        pass
+    else:
+        REST_FRAMEWORK = {
+            'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
+        }
+
+    SPECTACULAR_SETTINGS = {
+        'TITLE': f'{PROJECT_NAME} API',
+        'DESCRIPTION': 'API documentation for all endpoints',
+        'VERSION': '1.0.0',
+        'SERVE_INCLUDE_SCHEMA': False,
+        'SECURITY': [{'Bearer': []} if not DEBUG and 'cognito_jwt' in INSTALLED_APPS else {},]
+    }
