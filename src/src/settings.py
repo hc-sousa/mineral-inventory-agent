@@ -348,6 +348,13 @@ ELASTICSEARCH_DSL = {
         'hosts': config('ELASTICSEARCH_HOST', default='localhost:9200')
     },
 }
+
+# Local LLM settings
+USE_LOCAL_LLM = config('USE_LOCAL_LLM', 'False').lower() == 'true'
+LOCAL_LLM_BASE_URL = config('LOCAL_LLM_BASE_URL', 'http://localhost:1234/v1')
+LOCAL_LLM_API_KEY = config('LOCAL_LLM_API_KEY', 'not-needed')
+LOCAL_LLM_MODEL = config('LOCAL_LLM_MODEL', 'llama-3.2-3b-instruct')
+
 #### END OF CUSTOM CONFIGURATION SETTINGS ####
 
 # Modify REST framework settings to include JWT authentication in production

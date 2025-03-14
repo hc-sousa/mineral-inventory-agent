@@ -1,6 +1,20 @@
 from django.shortcuts import render
+from django.http import JsonResponse
+from django.contrib.auth.decorators import login_required
 
-# Create your supervisor views here.
-from django.shortcuts import render
+def supervisor_dashboard(request):
+    """
+    Render the supervisor dashboard page
+    """
+    return render(request, 'supervisor/dashboard.html', {
+        'title': 'Supervisor Dashboard',
+    })
 
-# Create your supervisor views here.
+@login_required
+def agent_settings(request):
+    """
+    Render the agent settings page
+    """
+    return render(request, 'supervisor/settings.html', {
+        'title': 'Agent Settings',
+    })
