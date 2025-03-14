@@ -1,5 +1,7 @@
 # Utility functions for supervisor
 import os
+import re
+import json
 from typing import List, Dict, Any
 from django.conf import settings
 
@@ -8,7 +10,6 @@ from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 from langchain_core.output_parsers import StrOutputParser
 from langchain_core.prompts import ChatPromptTemplate, MessagesPlaceholder
 from langchain_core.runnables import RunnablePassthrough
-from langchain.memory import ConversationBufferMemory
 
 # Agent initialization and management
 def create_supervisor_agent():
@@ -46,6 +47,40 @@ def create_supervisor_agent():
         3. Providing guidance on mineral identification, characteristics, and value.
         
         Be informative, friendly, and concise in your responses.
+        
+        IMPORTANT: If the user provides information about a mineral, extract the relevant details and format them as a JSON object 
+        enclosed between <MINERAL_DATA> and </MINERAL_DATA> tags at the end of your response.
+        
+        The JSON must be properly formatted with curly braces. For example:
+        <MINERAL_DATA>
+        {
+          "title": "Emerald from Colombia",
+          "minerals": ["Emerald", "Beryl"],
+          "type": "gemstone"
+        }
+        </MINERAL_DATA>
+        
+        The JSON should use these field names if the information is available:
+        - title: The name or title of the mineral specimen
+        - minerals: The minerals present in the specimen (as an array)
+        - type: The type (crystal, gemstone, fossil, rock, meteorite)
+        - pricing_type: Either "auction" or "fixed"
+        - currency: The currency code (USD, EUR, GBP)
+        - starting_price: The starting price for auction items
+        - reserve_price: The reserve price for auction items
+        - buy_now_price: The buy now price
+        - reserve_price_sale: Reserve price sale information
+        - locality: The primary locality where the mineral was found
+        - additional_locality: Additional locality information
+        - special_characteristics: Special characteristics of the specimen
+        - provenance: The provenance information
+        - height: Height in mm
+        - width: Width in mm
+        - depth: Depth in mm
+        - weight: Weight in grams
+        - description: A description of the specimen
+        
+        Only include fields for which you have information. Use null for empty fields. Ensure the JSON is properly formatted with opening and closing braces.
         """
         
         # Create a simpler conversation history approach
@@ -79,6 +114,58 @@ def create_supervisor_agent():
         # Fallback to a simple echo function if agent creation fails
         return None, None
 
+def extract_mineral_data(response_text):
+    """
+    Extract structured mineral data from the response text if present
+    """
+    pattern = r'<MINERAL_DATA>(.*?)</MINERAL_DATA>'
+    match = re.search(pattern, response_text, re.DOTALL)
+    
+    if match:
+        try:
+            # Extract the JSON string
+            json_str = match.group(1).strip()
+            
+            # Ensure the JSON string is properly formatted with curly braces
+            if not json_str.startswith("{"):
+                json_str = "{" + json_str
+            if not json_str.endswith("}"):
+                json_str = json_str + "}"
+                
+            # Clean up the JSON string
+            json_str = json_str.replace("\n", "").replace("\r", "")
+            
+            # Attempt to parse the JSON string
+            try:
+                mineral_data = json.loads(json_str)
+            except json.JSONDecodeError:
+                # If still failing, try to clean up more aggressively
+                json_str = re.sub(r'\s+', ' ', json_str)
+                json_str = json_str.replace('": ', '":"').replace(', "', '","')
+                json_str = json_str.replace('null', 'null"')
+                json_str = json_str.replace(':"null"', ':null')
+                mineral_data = json.loads(json_str)
+            
+            # Get the entire matched text (including tags)
+            full_match = match.group(0)
+            
+            # Remove the entire match from the response text
+            clean_response = response_text.replace(full_match, '').strip()
+            
+            print("Extracted JSON string:", json_str)
+            print("Parsed mineral data:", mineral_data)
+            print("Original length:", len(response_text), "Cleaned length:", len(clean_response))
+            
+            return clean_response, mineral_data
+        except Exception as e:
+            print(f"Error processing mineral data: {str(e)}")
+            print(f"Problematic JSON string: {json_str if 'json_str' in locals() else 'Not extracted'}")
+            # Return the original text without the tags in case of an error
+            clean_response = re.sub(pattern, '', response_text, flags=re.DOTALL).strip()
+            return clean_response, {}
+    
+    return response_text, {}
+
 def process_user_request(user_message: str, conversation_id: str = None) -> Dict[str, Any]:
     """
     Process a user request and return a response using the supervisor agent
@@ -96,12 +183,17 @@ def process_user_request(user_message: str, conversation_id: str = None) -> Dict
             }
         
         # Process the user message
-        response = get_response(user_message)
+        response_text = get_response(user_message)
         
+        # Extract mineral data if present
+        clean_response, mineral_data = extract_mineral_data(response_text)
+        print(f"Clean response: {clean_response}")
+        print(f"Mineral data: {mineral_data}")
         return {
             "success": True,
-            "reply": response,
-            "message_id": hash(f"{conversation_id}_{user_message}")  # Simple message ID generation
+            "reply": clean_response,
+            "message_id": hash(f"{conversation_id}_{user_message}"),  # Simple message ID generation
+            "mineral_data": mineral_data
         }
     except Exception as e:
         print(f"Error processing request: {str(e)}")

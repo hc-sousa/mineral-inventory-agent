@@ -6,6 +6,10 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mineral Inventory Chat</title>
     <link rel="stylesheet" href="{% static 'chat/css/style.css' %}">
+    <!-- Add marked.js for markdown parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <!-- Add Font Awesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body>
     <div class="page-container">
@@ -15,13 +19,16 @@
             </div>
             <div class="chat-messages" id="chat-messages">
                 <div class="system-message">
-                    <p>Welcome to the Mineral Inventory Chat. How can I help you today?</p>
+                    <div class="message-content">Welcome to the Mineral Inventory Chat. How can I help you today?</div>
                 </div>
             </div>
             <div class="chat-input">
                 <form id="chat-form">
                     <input type="text" id="user-input" placeholder="Type your message here..." required>
-                    <button type="submit">Send</button>
+                    <button type="submit" id="send-button">
+                        <span class="button-text">Send</span>
+                        <span class="button-loader"><i class="fas fa-spinner fa-spin"></i></span>
+                    </button>
                 </form>
             </div>
         </div>
