@@ -31,6 +31,7 @@ apps = [
     ('supervisor', True), # Super Admin Panel
     ('error_handling', True), # Error Handling
     ('legal', True), # Legal Pages
+    ('chat', True), # Chat Interface
     ('tailwind', True), # Tailwind CSS
     ('django_browser_reload', False), # Automatically reloads the browser when you save a file
     ('django_elasticsearch_dsl', True), # Elasticsearch DSL

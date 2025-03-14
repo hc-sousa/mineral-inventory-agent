@@ -25,6 +25,7 @@ urlpatterns = [
     path('__reload__/', include('django_browser_reload.urls')),
     path('i18n/', include('django.conf.urls.i18n')),
     path('media/<path:path>', views.fetch_media, name='get_media'),
+    path('chat/', include('chat.urls', namespace='chat')),
 ]
 
 if 'allauth' in settings.INSTALLED_APPS:

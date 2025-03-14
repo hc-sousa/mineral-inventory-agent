@@ -1,2 +1,2 @@
 from .views import *
-from .views import *
+from .requests import *

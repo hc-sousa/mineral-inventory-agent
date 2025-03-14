@@ -1,0 +1,160 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mineral Inventory Chat</title>
+    <link rel="stylesheet" href="{% static 'chat/css/style.css' %}">
+</head>
+<body>
+    <div class="page-container">
+        <div class="chat-container">
+            <div class="chat-header">
+                <h1>Mineral Inventory Chat</h1>
+            </div>
+            <div class="chat-messages" id="chat-messages">
+                <div class="system-message">
+                    <p>Welcome to the Mineral Inventory Chat. How can I help you today?</p>
+                </div>
+            </div>
+            <div class="chat-input">
+                <form id="chat-form">
+                    <input type="text" id="user-input" placeholder="Type your message here..." required>
+                    <button type="submit">Send</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="mineral-form-container">
+            <div class="form-header">
+                <h2>Mineral Information</h2>
+            </div>
+            <form id="mineral-form" class="mineral-form">
+                <div class="form-group">
+                    <label for="title">Title</label>
+                    <input type="text" id="title" name="title">
+                </div>
+                
+                <div class="form-group">
+                    <label for="minerals">Minerals</label>
+                    <input type="text" id="minerals" name="minerals">
+                </div>
+                
+                <div class="form-group">
+                    <label for="type">Type</label>
+                    <select id="type" name="type">
+                        <option value="">Select Type</option>
+                        <option value="crystal">Crystal</option>
+                        <option value="gemstone">Gemstone</option>
+                        <option value="fossil">Fossil</option>
+                        <option value="rock">Rock</option>
+                        <option value="meteorite">Meteorite</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label>Auction/Fixed Price</label>
+                    <div class="radio-group">
+                        <input type="radio" id="auction" name="pricing_type" value="auction">
+                        <label for="auction">Auction</label>
+                        <input type="radio" id="fixed" name="pricing_type" value="fixed">
+                        <label for="fixed">Fixed Price</label>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="currency">Currency</label>
+                    <select id="currency" name="currency">
+                        <option value="">Select Currency</option>
+                        <option value="USD">USD</option>
+                        <option value="EUR">EUR</option>
+                        <option value="GBP">GBP</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="starting_price">Item starting price</label>
+                    <input type="number" step="0.01" id="starting_price" name="starting_price">
+                </div>
+                
+                <div class="form-group">
+                    <label for="reserve_price">Item reserve price</label>
+                    <input type="number" step="0.01" id="reserve_price" name="reserve_price">
+                </div>
+                
+                <div class="form-group">
+                    <label for="buy_now_price">Item buy now price</label>
+                    <input type="number" step="0.01" id="buy_now_price" name="buy_now_price">
+                </div>
+                
+                <div class="form-group">
+                    <label for="reserve_price_sale">Reserve Price Sale</label>
+                    <input type="text" id="reserve_price_sale" name="reserve_price_sale">
+                </div>
+                
+                <div class="form-group">
+                    <label for="locality">Locality</label>
+                    <input type="text" id="locality" name="locality">
+                </div>
+                
+                <div class="form-group">
+                    <label for="additional_locality">Additional Locality</label>
+                    <input type="text" id="additional_locality" name="additional_locality">
+                </div>
+                
+                <div class="form-group">
+                    <label for="special_characteristics">Special Characteristics</label>
+                    <textarea id="special_characteristics" name="special_characteristics"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="provenance">Provenance</label>
+                    <input type="text" id="provenance" name="provenance">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="height">Height (mm)</label>
+                        <input type="number" step="0.1" id="height" name="height">
+                    </div>
+                    
+                    <div class="form-group half">
+                        <label for="width">Width (mm)</label>
+                        <input type="number" step="0.1" id="width" name="width">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group half">
+                        <label for="depth">Depth (mm)</label>
+                        <input type="number" step="0.1" id="depth" name="depth">
+                    </div>
+                    
+                    <div class="form-group half">
+                        <label for="weight">Weight (g)</label>
+                        <input type="number" step="0.1" id="weight" name="weight">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="description">Description</label>
+                    <textarea id="description" name="description" rows="4"></textarea>
+                </div>
+                
+                <div class="form-group">
+                    <label for="images">Images</label>
+                    <input type="file" id="images" name="images" multiple accept="image/*">
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit">Save</button>
+                    <button type="button" id="reset-form">Reset</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="{% static 'chat/js/chat.js' %}"></script>
+</body>
+</html>
