@@ -166,14 +166,13 @@ def extract_mineral_data(response_text):
     
     return response_text, {}
 
-def process_user_request(user_message: str, conversation_id: str = None) -> Dict[str, Any]:
+def process_user_request(user_message: str, conversation_id: str = None, conversation_history: List[Dict] = None) -> Dict[str, Any]:
     """
     Process a user request and return a response using the supervisor agent
     """
     try:
-        # In a real implementation, you might want to retrieve or create a persistent 
-        # agent instance based on the conversation_id
-        get_response, conversation_history = create_supervisor_agent()
+        # Create a new agent instance
+        get_response, agent_conversation_history = create_supervisor_agent()
         
         if get_response is None:
             return {
@@ -182,6 +181,15 @@ def process_user_request(user_message: str, conversation_id: str = None) -> Dict
                 "message_id": None
             }
         
+        # If we have a client-provided conversation history, use it to initialize the agent
+        if conversation_history and len(conversation_history) > 0:
+            # Convert the conversation history format from the frontend to LangChain messages
+            for message in conversation_history[:-1]:  # Exclude the latest user message which we'll send separately
+                if message['role'] == 'user':
+                    agent_conversation_history.append(HumanMessage(content=message['content']))
+                elif message['role'] == 'assistant':
+                    agent_conversation_history.append(AIMessage(content=message['content']))
+        
         # Process the user message
         response_text = get_response(user_message)
         
@@ -189,6 +197,7 @@ def process_user_request(user_message: str, conversation_id: str = None) -> Dict
         clean_response, mineral_data = extract_mineral_data(response_text)
         print(f"Clean response: {clean_response}")
         print(f"Mineral data: {mineral_data}")
+        
         return {
             "success": True,
             "reply": clean_response,

@@ -6,6 +6,9 @@ document.addEventListener('DOMContentLoaded', function() {
     const resetFormButton = document.getElementById('reset-form');
     const sendButton = document.getElementById('send-button');
     
+    // Track conversation history
+    let conversationHistory = [];
+    
     // Track form changes for revert functionality
     let formChangeHistory = [];
     let currentFormState = {};
@@ -67,7 +70,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Function to add a message to the chat interface
-    function addMessage(content, type) {
+    function addMessage(content, type, isHistory = false) {
         const messageDiv = document.createElement('div');
         messageDiv.className = type;
         
@@ -95,6 +98,15 @@ document.addEventListener('DOMContentLoaded', function() {
         
         // Scroll to the bottom of the chat
         chatMessages.scrollTop = chatMessages.scrollHeight;
+        
+        // Add to conversation history if it's not already from history
+        if (!isHistory) {
+            const role = type === 'user-message' ? 'user' : 'assistant';
+            conversationHistory.push({
+                role: role,
+                content: content
+            });
+        }
     }
 
     // Handle chat form submission
@@ -118,7 +130,7 @@ document.addEventListener('DOMContentLoaded', function() {
         showTypingIndicator();
         setButtonLoading(true);
         
-        // Send message to backend
+        // Send message to backend with conversation history
         fetch('/chat/send_message/', {
             method: 'POST',
             headers: {
@@ -126,7 +138,8 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify({ 
                 message: message,
-                conversation_id: conversationId
+                conversation_id: conversationId,
+                conversation_history: conversationHistory
             }),
         })
         .then(response => response.json())
@@ -331,4 +344,78 @@ document.addEventListener('DOMContentLoaded', function() {
         prismAutoloader.src = 'https://cdnjs.cloudflare.com/ajax/libs/prism/1.25.0/plugins/autoloader/prism-autoloader.min.js';
         document.head.appendChild(prismAutoloader);
     }
+    
+    // Function to restore conversation from localStorage if available
+    function loadConversationFromStorage() {
+        const savedHistory = localStorage.getItem('mineralChatHistory');
+        const savedConversationId = localStorage.getItem('mineralChatConversationId');
+        
+        if (savedHistory && savedConversationId) {
+            try {
+                const historyData = JSON.parse(savedHistory);
+                conversationHistory = historyData;
+                
+                // Display saved messages
+                historyData.forEach(item => {
+                    const messageType = item.role === 'user' ? 'user-message' : 'bot-message';
+                    addMessage(item.content, messageType, true);
+                });
+                
+                // Restore conversation ID
+                chatMessages.dataset.conversationId = savedConversationId;
+                
+                return true;
+            } catch (e) {
+                console.error('Error restoring conversation:', e);
+                // Clear invalid data
+                localStorage.removeItem('mineralChatHistory');
+                localStorage.removeItem('mineralChatConversationId');
+            }
+        }
+        return false;
+    }
+    
+    // Function to save conversation to localStorage
+    function saveConversationToStorage() {
+        if (conversationHistory.length > 0) {
+            localStorage.setItem('mineralChatHistory', JSON.stringify(conversationHistory));
+            localStorage.setItem('mineralChatConversationId', chatMessages.dataset.conversationId);
+        }
+    }
+    
+    // Clear conversation history
+    function clearConversation() {
+        conversationHistory = [];
+        chatMessages.innerHTML = '';
+        chatMessages.dataset.conversationId = generateUUID();
+        
+        // Add welcome message
+        const welcomeDiv = document.createElement('div');
+        welcomeDiv.className = 'system-message';
+        
+        const welcomeContent = document.createElement('div');
+        welcomeContent.className = 'message-content';
+        welcomeContent.textContent = 'Welcome to the Mineral Inventory Chat. How can I help you today?';
+        
+        welcomeDiv.appendChild(welcomeContent);
+        chatMessages.appendChild(welcomeDiv);
+        
+        // Clear storage
+        localStorage.removeItem('mineralChatHistory');
+        localStorage.removeItem('mineralChatConversationId');
+    }
+    
+    // Add a clear button to the chat header
+    const chatHeader = document.querySelector('.chat-header');
+    const clearButton = document.createElement('button');
+    clearButton.textContent = 'Clear Chat';
+    clearButton.className = 'clear-chat-button';
+    clearButton.addEventListener('click', clearConversation);
+    chatHeader.appendChild(clearButton);
+    
+    // Load conversation on page load
+    loadConversationFromStorage();
+    
+    // Save conversation before page unload
+    window.addEventListener('beforeunload', saveConversationToStorage);
 });

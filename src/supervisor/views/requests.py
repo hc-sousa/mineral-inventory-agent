@@ -16,9 +16,14 @@ def user_request(request):
         data = json.loads(request.body)
         user_message = data.get('message', '')
         conversation_id = data.get('conversation_id', str(uuid.uuid4()))
+        conversation_history = data.get('conversation_history', [])
         
         # Use the langchain-based supervisor agent to process the request
-        response_data = process_user_request(user_message, conversation_id)
+        response_data = process_user_request(
+            user_message, 
+            conversation_id=conversation_id, 
+            conversation_history=conversation_history
+        )
         
         # Include any potential mineral data for the form
         # This is a placeholder for potential future integration
@@ -26,7 +31,6 @@ def user_request(request):
         mineral_data = {}
         
         # Check if response contains any extractable mineral information
-        # This would require more sophisticated parsing in a real implementation
         if response_data.get('success', False) and "mineral_data" in response_data:
             mineral_data = response_data["mineral_data"]
         
