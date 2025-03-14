@@ -56,7 +56,15 @@ def create_supervisor_agent():
         {
           "title": "Emerald from Colombia",
           "minerals": ["Emerald", "Beryl"],
-          "type": "gemstone"
+          "type": "gemstone",
+          "pricing_type": "fixed",
+          "currency": "USD",
+          "starting_price": 200,
+          "buy_now_price": 350,
+          "height": 18,
+          "width": 20,
+          "depth": 2,
+          "weight": 50
         }
         </MINERAL_DATA>
         
@@ -66,21 +74,28 @@ def create_supervisor_agent():
         - type: The type (crystal, gemstone, fossil, rock, meteorite)
         - pricing_type: Either "auction" or "fixed"
         - currency: The currency code (USD, EUR, GBP)
-        - starting_price: The starting price for auction items
-        - reserve_price: The reserve price for auction items
-        - buy_now_price: The buy now price
+        - starting_price: The starting price for auction items or the regular price for fixed price items (numeric value)
+        - reserve_price: The reserve price for auction items (numeric value)
+        - buy_now_price: The buy now price (numeric value)
         - reserve_price_sale: Reserve price sale information
         - locality: The primary locality where the mineral was found
         - additional_locality: Additional locality information
         - special_characteristics: Special characteristics of the specimen
         - provenance: The provenance information
-        - height: Height in mm
-        - width: Width in mm
-        - depth: Depth in mm
-        - weight: Weight in grams
+        - height: Height in mm (numeric value)
+        - width: Width in mm (numeric value)
+        - depth: Depth in mm (numeric value)
+        - weight: Weight in grams (numeric value)
         - description: A description of the specimen
         
-        Only include fields for which you have information. Use null for empty fields. Ensure the JSON is properly formatted with opening and closing braces.
+        SPECIAL INSTRUCTIONS:
+        1. For PRICES: If a general price is mentioned, map it to either starting_price (for auctions) or buy_now_price (for fixed price) based on the pricing_type.
+        2. For DIMENSIONS: If dimensions are mentioned in the format like "18x20x2mm", separate them into individual height, width, and depth fields.
+        3. Always include numeric dimensions and weights as numeric values without units.
+        4. Preserve information from previous exchanges when updating fields.
+        
+        Only include fields for which you have information. For price fields, always use numeric values (not strings), using 0 or null for unknown values. 
+        Ensure the JSON is properly formatted with opening and closing braces.
         """
         
         # Create a simpler conversation history approach
@@ -138,6 +153,44 @@ def extract_mineral_data(response_text):
             # Attempt to parse the JSON string
             try:
                 mineral_data = json.loads(json_str)
+                
+                # Handle generic price field mapping
+                if 'price' in mineral_data:
+                    price = mineral_data['price']
+                    # Determine where to map the price
+                    pricing_type = mineral_data.get('pricing_type', 'fixed')
+                    
+                    if pricing_type == 'auction':
+                        mineral_data['starting_price'] = price
+                    else:
+                        mineral_data['buy_now_price'] = price
+                    
+                # Handle dimensions if they're in a single field
+                if 'dimensions' in mineral_data:
+                    dims = mineral_data['dimensions']
+                    # Try to parse dimensions like "18x20x2mm"
+                    dim_match = re.search(r'(\d+(?:\.\d+)?)\s*[x×]\s*(\d+(?:\.\d+)?)\s*[x×]\s*(\d+(?:\.\d+)?)', dims)
+                    if dim_match:
+                        height, width, depth = dim_match.groups()
+                        mineral_data['height'] = float(height)
+                        mineral_data['width'] = float(width)
+                        mineral_data['depth'] = float(depth)
+                
+                # Ensure price fields are properly formatted as numeric values
+                price_fields = ['starting_price', 'reserve_price', 'buy_now_price']
+                for field in price_fields:
+                    if field in mineral_data:
+                        # If string that can be converted to float, do so
+                        if isinstance(mineral_data[field], str) and mineral_data[field].strip():
+                            try:
+                                mineral_data[field] = float(mineral_data[field])
+                            except ValueError:
+                                pass  # Keep as is if can't convert
+                        
+                        # If field is null or empty string, set to empty string for form
+                        if mineral_data[field] is None or mineral_data[field] == "":
+                            mineral_data[field] = ""
+                
             except json.JSONDecodeError:
                 # If still failing, try to clean up more aggressively
                 json_str = re.sub(r'\s+', ' ', json_str)

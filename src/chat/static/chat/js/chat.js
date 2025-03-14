@@ -185,25 +185,109 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Function to update form fields with new data
     function updateFormFields(data) {
+        console.log("Updating form with data:", data);
+        
+        // Special handling for generic price field
+        if (data.price !== undefined) {
+            // If there's a generic "price" field, map it to the appropriate price field
+            const pricingType = data.pricing_type || "fixed";
+            
+            if (pricingType === "auction") {
+                // For auctions, use as starting price
+                const startingPrice = document.getElementById('starting_price');
+                if (startingPrice) {
+                    startingPrice.value = data.price;
+                    highlightField(startingPrice);
+                    console.log(`Mapped general price ${data.price} to starting_price for auction`);
+                }
+            } else {
+                // For fixed price, use as buy_now_price
+                const buyNowPrice = document.getElementById('buy_now_price');
+                if (buyNowPrice) {
+                    buyNowPrice.value = data.price;
+                    highlightField(buyNowPrice);
+                    console.log(`Mapped general price ${data.price} to buy_now_price for fixed price`);
+                }
+            }
+        }
+        
+        // Handle dimensions if they're in a non-standard format
+        if (data.dimensions) {
+            const dimensionsMatch = data.dimensions.match(/(\d+(?:\.\d+)?)\s*[x×]\s*(\d+(?:\.\d+)?)\s*[x×]\s*(\d+(?:\.\d+)?)/i);
+            if (dimensionsMatch) {
+                const [, height, width, depth] = dimensionsMatch;
+                
+                const heightField = document.getElementById('height');
+                const widthField = document.getElementById('width');
+                const depthField = document.getElementById('depth');
+                
+                if (heightField && height) {
+                    heightField.value = parseFloat(height);
+                    highlightField(heightField);
+                }
+                
+                if (widthField && width) {
+                    widthField.value = parseFloat(width);
+                    highlightField(widthField);
+                }
+                
+                if (depthField && depth) {
+                    depthField.value = parseFloat(depth);
+                    highlightField(depthField);
+                }
+                
+                console.log(`Parsed dimensions ${data.dimensions} into H:${height}, W:${width}, D:${depth}`);
+            }
+        }
+        
+        // Process all other fields normally
         for (const [key, value] of Object.entries(data)) {
+            // Skip the price field as we've already handled it specially
+            if (key === 'price' || key === 'dimensions') continue;
+            
             const field = document.getElementById(key);
+            console.log(`Processing field: ${key}, value:`, value, "Field element:", field);
+            
             if (field) {
                 if (field.type === 'radio') {
                     // Handle radio buttons
                     const radioButton = document.querySelector(`input[name="${field.name}"][value="${value}"]`);
                     if (radioButton) {
                         radioButton.checked = true;
+                        highlightField(radioButton);
+                        console.log(`Set radio button ${field.name} to ${value}`);
                     }
                 } else if (field.tagName === 'SELECT') {
                     // Handle select elements
                     field.value = value;
-                    // Highlight the updated field
                     highlightField(field);
+                    console.log(`Set select field ${key} to ${value}`);
+                } else if (Array.isArray(value)) {
+                    // Handle array values (like minerals)
+                    field.value = value.join(', ');
+                    highlightField(field);
+                    console.log(`Set array field ${key} to ${field.value}`);
                 } else {
-                    // Handle normal inputs and textareas
-                    field.value = value;
-                    // Highlight the updated field
+                    // Handle normal inputs and textareas, including null values
+                    field.value = value !== null ? value : '';
                     highlightField(field);
+                    console.log(`Set field ${key} to ${field.value}`);
+                }
+            } else {
+                // Special handling for specific fields that might be named differently
+                if (key === 'buy_now_price' || key === 'starting_price' || key === 'reserve_price') {
+                    // Try with and without underscore
+                    const alternateKey = key.replace('_', '');
+                    const alternateField = document.getElementById(alternateKey);
+                    if (alternateField) {
+                        alternateField.value = value !== null ? value : '';
+                        highlightField(alternateField);
+                        console.log(`Set alternate field ${alternateKey} to ${alternateField.value}`);
+                    } else {
+                        console.log(`Could not find field for ${key} or ${alternateKey}`);
+                    }
+                } else {
+                    console.log(`Field not found: ${key}`);
                 }
             }
         }
