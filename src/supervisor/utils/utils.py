@@ -2,7 +2,7 @@
 from typing import List, Dict, Any
 from django.conf import settings
 
-from agents.utils.extract import extract_mineral_data
+from agents.format_agent.utils.extract import extract_mineral_data
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage, SystemMessage, AIMessage
 
