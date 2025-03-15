@@ -52,3 +52,9 @@ chromadb==0.6.3
 elasticsearch==8.17.2
 django-elasticsearch-dsl==8.0
 ##
+
+## For Speech-To-Text
+SpeechRecognition==3.14.1
+pocketsphinx==5.0.4
+pydub==0.25.1
+##

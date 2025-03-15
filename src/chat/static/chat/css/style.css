@@ -122,6 +122,43 @@ button:hover {
     background-color: #3a5a80;
 }
 
+/* Microphone button styling */
+#mic-button {
+    padding: 10px;
+    background-color: #4a6fa5;
+    color: white;
+    border: none;
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-left: 10px;
+}
+
+#mic-button:hover {
+    background-color: #3a5a80;
+}
+
+#mic-button.recording {
+    animation: pulse 1.5s infinite;
+    background-color: #f44336;
+}
+
+@keyframes pulse {
+    0% {
+        box-shadow: 0 0 0 0 rgba(244, 67, 54, 0.7);
+    }
+    70% {
+        box-shadow: 0 0 0 10px rgba(244, 67, 54, 0);
+    }
+    100% {
+        box-shadow: 0 0 0 0 rgba(244, 67, 54, 0);
+    }
+}
+
 /* Mineral form styles */
 .mineral-form-container {
     flex: 1;

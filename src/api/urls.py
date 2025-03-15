@@ -6,6 +6,7 @@ from api.views.test_views import (
     TestAgentChatView,
     TestMineralQueryView
 )
+from .views.speech_to_text import SpeechToTextView
 
 urlpatterns = [
     path('', views.test_connection, name='index'),
@@ -14,6 +15,7 @@ urlpatterns = [
     path('test/minerals/', TestMineralsAgentView.as_view(), name='test-minerals'),
     path('test/chat/', TestAgentChatView.as_view(), name='test-agent-chat'),
     path('test/query/', TestMineralQueryView.as_view(), name='test-mineral-query'),
+    path('speech-to-text/', SpeechToTextView.as_view(), name='speech_to_text'),
     
     #v1 API
     #path('v1/', views.example, name='example'),

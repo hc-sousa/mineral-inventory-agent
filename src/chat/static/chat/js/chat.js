@@ -5,6 +5,7 @@ document.addEventListener('DOMContentLoaded', function() {
     const mineralForm = document.getElementById('mineral-form');
     const resetFormButton = document.getElementById('reset-form');
     const sendButton = document.getElementById('send-button');
+    const micButton = document.getElementById('mic-button');
     
     // Track conversation history
     let conversationHistory = [];
@@ -12,6 +13,11 @@ document.addEventListener('DOMContentLoaded', function() {
     // Track form changes for revert functionality
     let formChangeHistory = [];
     let currentFormState = {};
+    
+    // Speech recognition variables
+    let mediaRecorder;
+    let audioChunks = [];
+    let isRecording = false;
     
     // Create revert button
     const revertButton = document.createElement('button');
@@ -502,4 +508,168 @@ document.addEventListener('DOMContentLoaded', function() {
     
     // Save conversation before page unload
     window.addEventListener('beforeunload', saveConversationToStorage);
+    
+    // Speech-to-text functionality
+    micButton.addEventListener('click', toggleRecording);
+    
+    function toggleRecording() {
+        if (isRecording) {
+            stopRecording();
+        } else {
+            startRecording();
+        }
+    }
+    
+    async function startRecording() {
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            
+            // Update UI to show recording state
+            isRecording = true;
+            micButton.classList.add('recording');
+            micButton.querySelector('.fa-microphone').style.display = 'none';
+            micButton.querySelector('.fa-microphone-slash').style.display = 'inline';
+            
+            // Create media recorder with WAV or compatible format
+            const mimeType = getSupportedMimeType();
+            console.log(`Using MIME type: ${mimeType}`);
+            
+            mediaRecorder = new MediaRecorder(stream, { 
+                mimeType: mimeType,
+                audioBitsPerSecond: 128000 
+            });
+            audioChunks = [];
+            
+            mediaRecorder.addEventListener('dataavailable', event => {
+                audioChunks.push(event.data);
+            });
+            
+            mediaRecorder.addEventListener('stop', processRecording);
+            
+            // Start recording with smaller timeslice for more frequent dataavailable events
+            mediaRecorder.start(100);
+            
+            // Add a system message to indicate recording
+            addMessage('Recording... Click the microphone button again to stop.', 'system-message');
+            
+        } catch (error) {
+            console.error('Error accessing microphone:', error);
+            addMessage('Unable to access microphone. Please check permissions and try again.', 'system-message');
+        }
+    }
+    
+    // Function to get supported audio MIME type
+    function getSupportedMimeType() {
+        const types = [
+            'audio/wav',
+            'audio/webm',
+            'audio/webm;codecs=opus',
+            'audio/ogg;codecs=opus',
+            'audio/mp4',
+            'audio/mpeg'
+        ];
+        
+        for (let type of types) {
+            if (MediaRecorder.isTypeSupported(type)) {
+                return type;
+            }
+        }
+        
+        // Default to standard WebM audio
+        return 'audio/webm';
+    }
+
+    function stopRecording() {
+        if (mediaRecorder && isRecording) {
+            // Update UI
+            isRecording = false;
+            micButton.classList.remove('recording');
+            micButton.querySelector('.fa-microphone').style.display = 'inline';
+            micButton.querySelector('.fa-microphone-slash').style.display = 'none';
+            
+            // Stop recording
+            mediaRecorder.stop();
+            
+            // Add system message
+            addMessage('Processing speech...', 'system-message');
+        }
+    }
+    
+    function processRecording() {
+        // Get the mime type that was used for recording
+        const mimeType = mediaRecorder.mimeType;
+        console.log(`Processing recording with MIME type: ${mimeType}`);
+        
+        // Create audio blob from chunks with proper MIME type
+        const audioBlob = new Blob(audioChunks, { type: mimeType });
+        
+        // Create a more descriptive filename with the correct extension
+        const extension = mimeType.includes('webm') ? 'webm' : 
+                          mimeType.includes('ogg') ? 'ogg' : 
+                          mimeType.includes('mp4') ? 'mp4' : 
+                          mimeType.includes('mp3') ? 'mp3' : 'wav';
+        
+        // Create form data to send to server
+        const formData = new FormData();
+        formData.append('audio', audioBlob, `recording.${extension}`);
+        
+        // Show loading state
+        setButtonLoading(true);
+        
+        // Get CSRF token from cookie
+        function getCookie(name) {
+            let cookieValue = null;
+            if (document.cookie && document.cookie !== '') {
+                const cookies = document.cookie.split(';');
+                for (let i = 0; i < cookies.length; i++) {
+                    const cookie = cookies[i].trim();
+                    if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                        cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                        break;
+                    }
+                }
+            }
+            return cookieValue;
+        }
+        
+        const csrftoken = getCookie('csrftoken');
+        
+        // Send to speech-to-text API
+        fetch('/api/speech-to-text/', {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': csrftoken
+            },
+            body: formData,
+            credentials: 'same-origin'
+        })
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Speech recognition failed');
+            }
+            return response.json();
+        })
+        .then(data => {
+            setButtonLoading(false);
+            
+            if (data.text) {
+                // Add the transcribed text to the input field
+                userInput.value = data.text;
+                userInput.focus();
+                
+                // Remove processing message
+                const messages = chatMessages.getElementsByClassName('system-message');
+                if (messages.length > 0) {
+                    messages[messages.length - 1].remove();
+                }
+            } else {
+                throw new Error('No text returned from speech recognition');
+            }
+        })
+        .catch(error => {
+            setButtonLoading(false);
+            console.error('Speech recognition error:', error);
+            addMessage('Failed to transcribe speech. Please try again or type your message.', 'system-message');
+        });
+    }
 });
