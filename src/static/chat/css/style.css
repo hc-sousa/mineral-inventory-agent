@@ -1,0 +1,442 @@
+body {
+    font-family: Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #f5f5f5;
+}
+
+/* Main page layout */
+.page-container {
+    display: flex;
+    max-width: 1400px;
+    margin: 20px auto;
+    gap: 20px;
+}
+
+/* Chat container styles */
+.chat-container {
+    flex: 1;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    overflow: hidden;
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    max-width: 600px;
+    height: 80vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.chat-header {
+    background-color: #4a6fa5;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    position: relative;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.clear-chat-button {
+    position: absolute;
+    right: 10px;
+    background-color: #f44336;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    padding: 5px 10px;
+    font-size: 12px;
+    cursor: pointer;
+}
+
+.clear-chat-button:hover {
+    background-color: #d32f2f;
+}
+
+.chat-header h1 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.chat-messages {
+    padding: 20px;
+    flex-grow: 1;
+    overflow-y: auto;
+}
+
+.user-message, .bot-message, .system-message {
+    margin-bottom: 15px;
+    padding: 10px 15px;
+    border-radius: 18px;
+    max-width: 80%;
+    word-wrap: break-word;
+}
+
+.user-message {
+    background-color: #dcf8c6;
+    margin-left: auto;
+    border-bottom-right-radius: 5px;
+}
+
+.bot-message {
+    background-color: #f1f0f0;
+    margin-right: auto;
+    border-bottom-left-radius: 5px;
+}
+
+.system-message {
+    background-color: #e8eaf6;
+    margin: 10px auto;
+    text-align: center;
+}
+
+.chat-input {
+    padding: 10px;
+    border-top: 1px solid #ddd;
+}
+
+#chat-form {
+    display: flex;
+}
+
+#user-input {
+    flex: 1;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 20px;
+    outline: none;
+}
+
+button {
+    margin-left: 10px;
+    padding: 10px 20px;
+    background-color: #4a6fa5;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    cursor: pointer;
+}
+
+button:hover {
+    background-color: #3a5a80;
+}
+
+/* Mineral form styles */
+.mineral-form-container {
+    flex: 1;
+    border: 1px solid #ddd;
+    border-radius: 8px;
+    background-color: white;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+    padding-bottom: 20px;
+    max-width: 600px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+
+.form-header {
+    background-color: #4a6fa5;
+    color: white;
+    padding: 10px 20px;
+    text-align: center;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+}
+
+.form-header h2 {
+    margin: 0;
+    font-size: 24px;
+}
+
+.mineral-form {
+    padding: 20px;
+}
+
+.form-group {
+    margin-bottom: 15px;
+}
+
+.form-row {
+    display: flex;
+    gap: 15px;
+}
+
+.form-group.half {
+    flex: 1;
+}
+
+label {
+    display: block;
+    margin-bottom: 5px;
+    font-weight: bold;
+    color: #555;
+}
+
+input[type="text"],
+input[type="number"],
+input[type="file"],
+select,
+textarea {
+    width: 100%;
+    padding: 8px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    box-sizing: border-box;
+}
+
+textarea {
+    resize: vertical;
+}
+
+.radio-group {
+    display: flex;
+    gap: 15px;
+}
+
+.radio-group label {
+    font-weight: normal;
+    display: inline;
+}
+
+.form-actions {
+    margin-top: 20px;
+    display: flex;
+    gap: 10px;
+}
+
+/* Highlighted field styling */
+.updated-field {
+    background-color: #fffacd; /* Light yellow */
+    transition: background-color 1s ease-out;
+}
+
+/* Floating revert button */
+.revert-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    background-color: #ff4757;
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    font-weight: bold;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+    z-index: 1000;
+    animation: fadeIn 0.3s;
+}
+
+.revert-button:hover {
+    background-color: #e84118;
+}
+
+@keyframes fadeIn {
+    from {
+        opacity: 0;
+        transform: translateY(20px);
+    }
+    to {
+        opacity: 1;
+        transform: translateY(0);
+    }
+}
+
+/* Responsive design for smaller screens */
+@media (max-width: 1024px) {
+    .page-container {
+        flex-direction: column;
+        align-items: center;
+    }
+    
+    .chat-container, .mineral-form-container {
+        width: 95%;
+        max-width: none;
+    }
+    
+    .chat-container {
+        height: 50vh;
+    }
+}
+
+/* Add these styles to the existing CSS file */
+
+/* Message content styling for markdown */
+.message-content {
+    line-height: 1.5;
+    overflow-wrap: break-word;
+}
+
+.message-content p {
+    margin: 0 0 10px 0;
+}
+
+.message-content p:last-child {
+    margin-bottom: 0;
+}
+
+/* Format code blocks */
+.message-content pre {
+    background-color: #f5f5f5;
+    padding: 10px;
+    border-radius: 5px;
+    overflow-x: auto;
+    margin: 10px 0;
+}
+
+.message-content code {
+    font-family: 'Consolas', 'Monaco', 'Andale Mono', 'Ubuntu Mono', monospace;
+    font-size: 0.9em;
+    padding: 2px 4px;
+    background-color: #f5f5f5;
+    border-radius: 3px;
+}
+
+.message-content pre code {
+    padding: 0;
+    background-color: transparent;
+}
+
+/* Format lists */
+.message-content ul, 
+.message-content ol {
+    margin: 10px 0;
+    padding-left: 25px;
+}
+
+/* Format blockquotes */
+.message-content blockquote {
+    border-left: 4px solid #e0e0e0;
+    margin: 10px 0;
+    padding-left: 10px;
+    color: #555;
+}
+
+/* Format tables */
+.message-content table {
+    border-collapse: collapse;
+    margin: 10px 0;
+    width: 100%;
+}
+
+.message-content th,
+.message-content td {
+    border: 1px solid #ddd;
+    padding: 8px;
+    text-align: left;
+}
+
+.message-content th {
+    background-color: #f2f2f2;
+}
+
+/* Format links */
+.message-content a {
+    color: #4a6fa5;
+    text-decoration: underline;
+}
+
+.message-content a:hover {
+    color: #3a5a80;
+}
+
+/* Format images */
+.message-content img {
+    max-width: 100%;
+    height: auto;
+    margin: 10px 0;
+    border-radius: 5px;
+}
+
+/* Format headings */
+.message-content h1,
+.message-content h2,
+.message-content h3,
+.message-content h4,
+.message-content h5,
+.message-content h6 {
+    margin-top: 15px;
+    margin-bottom: 10px;
+    font-weight: bold;
+    color: #333;
+}
+
+.message-content h1 { font-size: 1.6em; }
+.message-content h2 { font-size: 1.4em; }
+.message-content h3 { font-size: 1.3em; }
+.message-content h4 { font-size: 1.2em; }
+.message-content h5 { font-size: 1.1em; }
+.message-content h6 { font-size: 1em; }
+
+/* Adjust the existing message styles to work with the new content container */
+.user-message .message-content,
+.bot-message .message-content,
+.system-message .message-content {
+    padding: 0;
+    margin: 0;
+}
+
+/* Add these styles for the loading indicators */
+
+/* Button loader styling */
+.button-loader {
+    display: none;
+}
+
+button.loading .button-text {
+    display: none;
+}
+
+button.loading .button-loader {
+    display: inline-block;
+}
+
+button:disabled {
+    background-color: #8aa8cc;
+    cursor: not-allowed;
+}
+
+/* Typing indicator */
+.typing-indicator {
+    background-color: #f1f0f0;
+    padding: 10px 15px;
+    border-radius: 18px;
+    margin-right: auto;
+    border-bottom-left-radius: 5px;
+    display: flex;
+    align-items: center;
+    animation: fadeIn 0.3s;
+    margin-bottom: 15px;
+}
+
+.typing-indicator span {
+    height: 6px;
+    width: 6px;
+    background-color: #777;
+    display: inline-block;
+    border-radius: 50%;
+    margin: 0 2px;
+    opacity: 0.6;
+}
+
+.typing-indicator span:nth-child(1) {
+    animation: bounce 1.2s infinite 0.1s;
+}
+
+.typing-indicator span:nth-child(2) {
+    animation: bounce 1.2s infinite 0.3s;
+}
+
+.typing-indicator span:nth-child(3) {
+    animation: bounce 1.2s infinite 0.5s;
+}
+
+@keyframes bounce {
+    0%, 100% {
+        transform: translateY(0);
+    }
+    50% {
+        transform: translateY(-5px);
+    }
+}
